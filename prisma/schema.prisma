@@ -1,13 +1,35 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+}
+
+// 서울 25개 자치구 마스터 데이터 
+model District {
+  id        Int    @id @default(autoincrement()) 
+  name      String @unique // 자치구명 (예: "강남구")
+  latitude  Float // 위도
+  longitude Float // 경도
+
+  mosquitoIndices MosquitoIndex[] // 이 구의 일별 모기지수 기록들
+}
+
+// 자치구별 일일 모기지수 
+model MosquitoIndex {
+  id            Int      @id @default(autoincrement()) 
+  districtId    Int 
+  date          DateTime @db.Date // 이 모기지수가 해당하는 날짜 
+  mosquitoIndex Float //  모기지수 값
+  level         Int // 경보 단계 (1 관심 ~ 4 위험)
+  compositeTemp Float // 계산에 쓰인 복합온도(직전 14일 평균기온)
+  compositeHum  Float // 계산에 쓰인 복합습도(직전 14일 평균습도)
+  minTemp       Float // 계산에 쓰인 당일 최저기온
+  createdAt     DateTime @default(now()) 
+
+  district District @relation(fields: [districtId], references: [id]) 
+
+  @@unique([districtId, date]) 
 }
