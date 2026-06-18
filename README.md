@@ -1,3 +1,23 @@
+## Environment
+
+| Item | Version |
+|---|---|
+| Node.js | v24.12.0 |
+| npm | 11.6.2 |
+| Language | TypeScript |
+| Framework | Express |
+| Database | MySQL |
+| ORM | Prisma |
+
+### Version Check
+
+```bash
+node -v
+# v24.12.0
+
+npm -v
+# 11.6.2
+
 ## Git Branch Convention
 
 ### 브랜치 구조
