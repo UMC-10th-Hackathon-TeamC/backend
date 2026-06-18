@@ -1,3 +1,7 @@
+# Mosquito Map Backend
+
+서울시 자치구별 모기 위험도 조회 및 커뮤니티 기능을 제공하는 백엔드 서버입니다.
+
 ## Environment
 
 | Item | Version |
@@ -159,24 +163,24 @@ refactor/post-service
 
 ## Backend Project Structure
 
-```bash
-src/
-├── index.ts
+```text
+src
+├── common
+│   ├── errors
+│   ├── middlewares
+│   └── responses
+├── generated
+│   ├── prisma
+│   └── routes.ts
+├── modules
+│   ├── comment
+│   ├── district
+│   ├── mosquito
+│   ├── post
+│   └── users
 ├── auth.config.ts
 ├── db.config.ts
-├── common/
-│   ├── errors/
-│   ├── middlewares/
-│   └── responses/
-├── generated/
-│   ├── prisma/
-│   └── routes.ts
-└── modules/
-    ├── mosquito/
-    ├── district/
-    ├── post/
-    ├── comment/
-    └── users/
+└── index.ts
 ```
 
 ### 개발 담당 예시
