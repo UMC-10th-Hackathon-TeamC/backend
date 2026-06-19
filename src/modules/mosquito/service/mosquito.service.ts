@@ -63,6 +63,8 @@ export class MosquitoService {
           name: d.gu,
           latitude: d.latitude,
           longitude: d.longitude,
+          nx: d.nx,
+          ny: d.ny,
         });
 
         // 처음 보는 구라면 CSV의 과거 14일치를 DailyWeather에 1회 백필

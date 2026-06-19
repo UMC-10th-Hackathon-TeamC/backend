@@ -40,10 +40,17 @@ export class MosquitoRepository {
     });
   }
 
-  async upsertDistrict(input: { name: string; latitude: number; longitude: number }): Promise<District> {
+  async upsertDistrict(input: {
+    name: string;
+    latitude: number;
+    longitude: number;
+    nx: number;
+    ny: number;
+  }): Promise<District> {
+    const { name, ...rest } = input;
     return prisma.district.upsert({
-      where: { name: input.name },
-      update: { latitude: input.latitude, longitude: input.longitude },
+      where: { name },
+      update: rest,
       create: input,
     });
   }
