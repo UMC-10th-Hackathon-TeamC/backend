@@ -23,6 +23,7 @@ export interface PostListItem {
     category: string;
     author: string;
     viewCount: number;
+    likeCount: number;
     commentCount: number;
     createdAt: Date;
 }
@@ -40,6 +41,7 @@ export interface PostDetailResponse {
     author: string;
     districtName: string;
     viewCount: number;
+    likeCount: number;
     commentCount: number;
     createdAt: Date;
     updatedAt: Date;
