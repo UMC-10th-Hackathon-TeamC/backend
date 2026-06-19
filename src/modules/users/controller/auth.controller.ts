@@ -2,6 +2,7 @@ import { Controller, Get, Post, Route, Tags, Security, Request } from 'tsoa';
 import passport from '../../../auth.config';
 import { AuthResponseDto, AuthNullResponseDto } from '../dto/auth.dto';
 import { generateAccessToken, generateRefreshToken } from '../../../auth.config';
+import { prisma } from '../../../db.config'; // 👈 Prisma 인스턴스 import 필요
 
 @Route("api/auth")
 @Tags("Auth")
@@ -13,34 +14,44 @@ export class AuthController extends Controller {
   }
 
   @Get("oauth2/callback/google")
-  public async googleCallback(@Request() req: any): Promise<AuthResponseDto> {
-    // 1. Passport 인증을 Promise로 감싸서 await로 실행
-    const user = await new Promise((resolve, reject) => {
-      passport.authenticate("google", { session: false }, (err, user) => {
-        if (err || !user) reject(new Error("인증 실패"));
-        resolve(user);
-      })(req, req.res); // req.res를 직접 전달
+public async googleCallback(@Request() req: any): Promise<AuthResponseDto> {
+  const user = await new Promise((resolve, reject) => {
+    // 세션 false 설정 확인
+    passport.authenticate("google", { session: false }, (err, user, info) => {
+      if (err) return reject(err);
+      if (!user) return reject(new Error(info?.message || "인증 실패")); // info에 상세 에러가 담길 수 있습니다
+      resolve(user);
+    })(req, req.res, (err: any) => { if (err) reject(err); }); // next 함수 추가
+  }) as any;
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // [추가] 리프레쉬 토큰을 DB에 저장 (보안을 위해 필수)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: refreshToken }
     });
 
-    // 2. 인증된 유저 객체로 토큰 생성
-    const accessToken = generateAccessToken(user as any);
-    const refreshToken = generateRefreshToken(user as any);
-
-    // 3. 기존 시그니처대로 AuthResponseDto 반환
     return {
       success: true,
       statusCode: 200,
       message: "로그인 성공",
-      data: {
-        accessToken, // 이제 실제 값이 들어갑니다!
-        refreshToken
-      }
+      data: { accessToken, refreshToken }
     };
   }
 
   @Security("jwt")
-  @Post("logout") // 경로 명시 (오타 수정: auth/logout -> logout)
+  @Post("logout")
   public async logout(@Request() req: any): Promise<AuthNullResponseDto> {
+    const user = req.user as any;
+
+    // [추가] 로그아웃 시 DB의 리프레쉬 토큰 무효화
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: null }
+    });
+
     return {
       success: true,
       statusCode: 200,
