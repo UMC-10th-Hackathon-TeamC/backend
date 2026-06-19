@@ -7,29 +7,120 @@ datasource db {
   provider = "mysql"
 }
 
-// 서울 25개 자치구 마스터 데이터 
+// 서울 25개 자치구 마스터 데이터
 model District {
-  id        Int    @id @default(autoincrement()) 
+  id        Int    @id @default(autoincrement())
   name      String @unique // 자치구명 (예: "강남구")
   latitude  Float // 위도
   longitude Float // 경도
+  nx        Int // 기상청 격자 X 좌표
+  ny        Int // 기상청 격자 Y 좌표
 
   mosquitoIndices MosquitoIndex[] // 이 구의 일별 모기지수 기록들
+  dailyWeathers   DailyWeather[] // 이 구의 일별 기상 데이터
+  posts           Post[] // 이 구의 게시글들
 }
 
-// 자치구별 일일 모기지수 
+// 자치구별 일일 모기지수
 model MosquitoIndex {
-  id            Int      @id @default(autoincrement()) 
-  districtId    Int 
-  date          DateTime @db.Date // 이 모기지수가 해당하는 날짜 
+  id            Int      @id @default(autoincrement())
+  districtId    Int
+  date          DateTime @db.Date // 이 모기지수가 해당하는 날짜
   mosquitoIndex Float //  모기지수 값
   level         Int // 경보 단계 (1 관심 ~ 4 위험)
   compositeTemp Float // 계산에 쓰인 복합온도(직전 14일 평균기온)
   compositeHum  Float // 계산에 쓰인 복합습도(직전 14일 평균습도)
   minTemp       Float // 계산에 쓰인 당일 최저기온
-  createdAt     DateTime @default(now()) 
+  createdAt     DateTime @default(now())
 
-  district District @relation(fields: [districtId], references: [id]) 
+  district District @relation(fields: [districtId], references: [id])
 
-  @@unique([districtId, date]) 
+  @@unique([districtId, date])
+}
+
+// 자치구별 일일 기상 데이터
+model DailyWeather {
+  id         Int      @id @default(autoincrement())
+  districtId Int
+  date       DateTime @db.Date // 이 평균값이 해당하는 날짜
+  avgTemp    Float // 그날의 평균 기온
+  avgHum     Float // 그날의 평균 습도
+  createdAt  DateTime @default(now())
+
+  district District @relation(fields: [districtId], references: [id])
+
+  @@unique([districtId, date])
+}
+
+// 사용자
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  nickname     String
+  profileImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts    Post[]
+  comments Comment[]
+  likes    Like[]
+  apiLogs  Log[]
+}
+
+// 게시글
+model Post {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  districtId Int
+  category   String
+  title      String
+  content    String   @db.Text
+  viewCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  district District  @relation(fields: [districtId], references: [id])
+  comments Comment[]
+  likes    Like[]
+}
+
+// 댓글
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  userId    Int
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+// 좋아요
+model Like {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+}
+
+// API 요청 로그
+model Log {
+  id           Int      @id @default(autoincrement())
+  userId       Int?
+  method       String
+  url          String
+  statusCode   Int
+  responseTime Int
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
 }
