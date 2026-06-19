@@ -2,6 +2,7 @@ node_modules/
 src/generated/
 dist/
 .env
+.idea
 weather.csv
 v1.js
 mosquito_project_summary.md
