@@ -64,7 +64,6 @@ model User {
   posts    Post[]
   comments Comment[]
   likes    Like[]
-  apiLogs  ApiLog[]
 }
 
 // 게시글
@@ -109,19 +108,4 @@ model Like {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
-}
-
-// API 요청 로그
-model ApiLog {
-  id           Int      @id @default(autoincrement())
-  userId       Int?
-  method       String
-  url          String
-  statusCode   Int
-  responseTime Int
-  ipAddress    String?
-  createdAt    DateTime @default(now())
-
-
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

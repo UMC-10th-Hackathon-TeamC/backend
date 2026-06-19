@@ -40,8 +40,9 @@ export class CommentController extends Controller {
         }
     }
 
-    @Patch("comments/{commentId}")
+    @Patch("posts/{postId}/comments/{commentId}")
     public async handleUpdateComment(
+        @Path() postId: number,
         @Path() commentId: number,
         @Body() body: CommentUpdateRequest,
     ): Promise<ApiResponse<null>> {
@@ -54,8 +55,9 @@ export class CommentController extends Controller {
         }
     }
 
-    @Delete("comments/{commentId}")
+    @Delete("posts/{postId}/comments/{commentId}")
     public async handleDeleteComment(
+        @Path() postId: number,
         @Path() commentId: number,
     ): Promise<ApiResponse<null>> {
         try {
