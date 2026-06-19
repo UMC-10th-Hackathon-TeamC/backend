@@ -103,15 +103,10 @@ function buildDailyAverage(records: ReturnType<typeof parseWeatherCsv>) {
   return result;
 }
 
-function computeComposite(dailyAvgMap: Record<string, number>, maxDays = COMPOSITE_DAYS) {
-  const dates = Object.keys(dailyAvgMap).sort();
-  const used = dates.slice(-maxDays);
-  const values = used.map((d) => dailyAvgMap[d]);
-  const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
-  return { avg, dayCount: used.length };
-}
-
-export function getCompositeForDistrict(dong: string): { compositeTemp: number; compositeHum: number } | null {
+// CSV에 들어있는 일별 평균기온/평균습도를 날짜순으로 반환 (DailyWeather 백필용)
+export function getDailyWeatherSeriesFromCsv(
+  dong: string
+): { dateKey: string; avgTemp: number; avgHum: number }[] | null {
   const tempFile = findCsvFile(dong, "1시간기온");
   const humFile = findCsvFile(dong, "습도");
   if (!tempFile || !humFile) return null;
@@ -119,12 +114,22 @@ export function getCompositeForDistrict(dong: string): { compositeTemp: number; 
   const dailyTemp = buildDailyAverage(parseWeatherCsv(tempFile));
   const dailyHum = buildDailyAverage(parseWeatherCsv(humFile));
 
-  const tempResult = computeComposite(dailyTemp);
-  const humResult = computeComposite(dailyHum);
+  const dateKeys = Object.keys(dailyTemp)
+    .filter((dateKey) => dateKey in dailyHum)
+    .sort();
 
-  if (tempResult.avg === null || humResult.avg === null) return null;
+  return dateKeys.map((dateKey) => ({
+    dateKey,
+    avgTemp: dailyTemp[dateKey],
+    avgHum: dailyHum[dateKey],
+  }));
+}
 
-  return { compositeTemp: tempResult.avg, compositeHum: humResult.avg };
+export function dateKeyToDate(dateKey: string): Date {
+  const y = parseInt(dateKey.slice(0, 4), 10);
+  const m = parseInt(dateKey.slice(4, 6), 10) - 1;
+  const d = parseInt(dateKey.slice(6, 8), 10);
+  return new Date(y, m, d);
 }
 
 // ---- getVilageFcst 최저기온 조회 ----
@@ -152,6 +157,20 @@ export function extractTMN(json: any): number | null {
     const items = json.response.body.items.item;
     const tmnItem = items.find((it: any) => it.category === "TMN");
     return tmnItem ? parseFloat(tmnItem.fcstValue) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// 오늘(fcstDate) 하루치 T1H(기온)/REH(습도) 예보값 평균 — DailyWeather 일일 적재용
+export function extractDailyAverage(json: any, category: "T1H" | "REH", fcstDate: string): number | null {
+  try {
+    const items = json.response.body.items.item;
+    const values = items
+      .filter((it: any) => it.category === category && it.fcstDate === fcstDate)
+      .map((it: any) => parseFloat(it.fcstValue));
+    if (!values.length) return null;
+    return values.reduce((a: number, b: number) => a + b, 0) / values.length;
   } catch (e) {
     return null;
   }

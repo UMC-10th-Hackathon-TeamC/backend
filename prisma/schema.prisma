@@ -15,6 +15,21 @@ model District {
   longitude Float // 경도
 
   mosquitoIndices MosquitoIndex[] // 이 구의 일별 모기지수 기록들
+  dailyWeathers   DailyWeather[] // 이 구의 일별 평균 기온/습도 기록들
+}
+
+// 자치구별 일일 평균 기온/습도 (복합온도/습도 14일 이동평균의 원천 데이터)
+model DailyWeather {
+  id         Int      @id @default(autoincrement())
+  districtId Int
+  date       DateTime @db.Date // 이 평균값이 해당하는 날짜
+  avgTemp    Float // 그날의 평균 기온
+  avgHum     Float // 그날의 평균 습도
+  createdAt  DateTime @default(now())
+
+  district District @relation(fields: [districtId], references: [id])
+
+  @@unique([districtId, date])
 }
 
 // 자치구별 일일 모기지수 
