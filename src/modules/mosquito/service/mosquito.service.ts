@@ -91,7 +91,7 @@ export class MosquitoService {
         }
 
         // 오늘 하루치 평균 기온/습도를 DailyWeather에 적재 (이동평균이 매일 갱신되도록)
-        const todayAvgTemp = extractDailyAverage(json, "T1H", baseDate);
+        const todayAvgTemp = extractDailyAverage(json, "TMP", baseDate);
         const todayAvgHum = extractDailyAverage(json, "REH", baseDate);
         if (todayAvgTemp !== null && todayAvgHum !== null) {
           await this.mosquitoRepository.upsertDailyWeather({

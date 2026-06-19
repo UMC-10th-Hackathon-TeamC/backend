@@ -7,31 +7,31 @@ export const CSV_DIR = "./weather.csv";
 export const COMPOSITE_DAYS = 14;
 
 export const DISTRICTS = [
-  { gu: "종로구", dong: "사직동", nx: 60, ny: 127, latitude: 37.5734684, longitude: 126.978984 },
-  { gu: "중구", dong: "명동", nx: 60, ny: 127, latitude: 37.5637584, longitude: 126.9975517 },
-  { gu: "용산구", dong: "용산2가동", nx: 60, ny: 126, latitude: 37.5323264, longitude: 126.9907031 },
-  { gu: "성동구", dong: "행당제1동", nx: 61, ny: 127, latitude: 37.5634092, longitude: 127.0369449 },
-  { gu: "광진구", dong: "자양제1동", nx: 62, ny: 126, latitude: 37.5362767, longitude: 127.0876506 },
-  { gu: "동대문구", dong: "용두동", nx: 61, ny: 127, latitude: 37.5742015, longitude: 127.0398327 },
-  { gu: "중랑구", dong: "면목본동", nx: 62, ny: 128, latitude: 37.6063046, longitude: 127.0931523 },
-  { gu: "성북구", dong: "성북동", nx: 61, ny: 127, latitude: 37.589366, longitude: 127.017343 },
-  { gu: "강북구", dong: "번1동", nx: 61, ny: 128, latitude: 37.6397767, longitude: 127.0255184 },
-  { gu: "도봉구", dong: "도봉제1동", nx: 61, ny: 129, latitude: 37.6687735, longitude: 127.047071 },
-  { gu: "노원구", dong: "중계본동", nx: 61, ny: 129, latitude: 37.6540782, longitude: 127.0566045 },
-  { gu: "은평구", dong: "불광제1동", nx: 59, ny: 127, latitude: 37.602749, longitude: 126.929256 },
-  { gu: "서대문구", dong: "북아현동", nx: 59, ny: 127, latitude: 37.5792607, longitude: 126.9364946 },
-  { gu: "마포구", dong: "공덕동", nx: 59, ny: 127, latitude: 37.566242, longitude: 126.9019425 },
-  { gu: "양천구", dong: "신정1동", nx: 58, ny: 126, latitude: 37.5169508, longitude: 126.8665644 },
-  { gu: "강서구", dong: "화곡본동", nx: 58, ny: 126, latitude: 37.5509103, longitude: 126.8495742 },
-  { gu: "구로구", dong: "구로제1동", nx: 58, ny: 125, latitude: 37.4954703, longitude: 126.8876391 },
-  { gu: "금천구", dong: "시흥제1동", nx: 59, ny: 124, latitude: 37.4567667, longitude: 126.8954005 },
-  { gu: "영등포구", dong: "영등포동", nx: 58, ny: 126, latitude: 37.5262625, longitude: 126.8959528 },
-  { gu: "동작구", dong: "사당제1동", nx: 59, ny: 125, latitude: 37.5124298, longitude: 126.9397997 },
-  { gu: "관악구", dong: "청룡동", nx: 59, ny: 125, latitude: 37.4782605, longitude: 126.9515208 },
-  { gu: "서초구", dong: "서초1동", nx: 61, ny: 125, latitude: 37.4836379, longitude: 127.0326416 },
-  { gu: "강남구", dong: "역삼1동", nx: 61, ny: 126, latitude: 37.5175686, longitude: 127.0474869 },
-  { gu: "송파구", dong: "잠실본동", nx: 62, ny: 126, latitude: 37.5144533, longitude: 127.1059047 },
-  { gu: "강동구", dong: "성내제1동", nx: 62, ny: 126, latitude: 37.530122, longitude: 127.1237479 },
+  { gu: "종로구", dong: "청운효자동", nx: 60, ny: 127, latitude: 37.5841367, longitude: 126.9706519 },
+  { gu: "중구", dong: "약수동", nx: 60, ny: 126, latitude: 37.5496583, longitude: 127.0110861 },
+  { gu: "용산구", dong: "이촌제1동", nx: 60, ny: 126, latitude: 37.5184028, longitude: 126.9753556 },
+  { gu: "성동구", dong: "왕십리도선동", nx: 61, ny: 127, latitude: 37.5677544, longitude: 127.0255591 },
+  { gu: "광진구", dong: "광장동", nx: 62, ny: 126, latitude: 37.5442139, longitude: 127.1053083 },
+  { gu: "동대문구", dong: "장안제1동", nx: 61, ny: 127, latitude: 37.5649861, longitude: 127.0684778 },
+  { gu: "중랑구", dong: "신내1동", nx: 62, ny: 128, latitude: 37.6030833, longitude: 127.1015528 },
+  { gu: "성북구", dong: "종암동", nx: 61, ny: 127, latitude: 37.5973306, longitude: 127.0335528 },
+  { gu: "강북구", dong: "삼각산동", nx: 61, ny: 128, latitude: 37.6144306, longitude: 127.0198528 },
+  { gu: "도봉구", dong: "방학제1동", nx: 61, ny: 129, latitude: 37.6614333, longitude: 127.0427667 },
+  { gu: "노원구", dong: "공릉2동", nx: 62, ny: 128, latitude: 37.6185694, longitude: 127.0854417 },
+  { gu: "은평구", dong: "진광동", nx: 59, ny: 128, latitude: 37.6356, longitude: 126.9211111 },
+  { gu: "서대문구", dong: "연희동", nx: 59, ny: 127, latitude: 37.5711222, longitude: 126.9373528 },
+  { gu: "마포구", dong: "성산제2동", nx: 59, ny: 127, latitude: 37.5659306, longitude: 126.9111528 },
+  { gu: "양천구", dong: "신정3동", nx: 58, ny: 126, latitude: 37.5123361, longitude: 126.8568861 },
+  { gu: "강서구", dong: "화곡제1동", nx: 58, ny: 126, latitude: 37.5277444, longitude: 126.8437417 },
+  { gu: "구로구", dong: "신도림동", nx: 58, ny: 125, latitude: 37.5049778, longitude: 126.8826528 },
+  { gu: "금천구", dong: "독산제1동", nx: 58, ny: 125, latitude: 37.4674583, longitude: 126.8991 },
+  { gu: "영등포구", dong: "영등포동", nx: 59, ny: 126, latitude: 37.5203985, longitude: 126.910691 },
+  { gu: "동작구", dong: "상도제1동", nx: 59, ny: 125, latitude: 37.50405, longitude: 126.9530222 },
+  { gu: "관악구", dong: "행운동", nx: 59, ny: 125, latitude: 37.4778833, longitude: 126.9590333 },
+  { gu: "서초구", dong: "양재1동", nx: 61, ny: 125, latitude: 37.4816361, longitude: 127.0381528 },
+  { gu: "강남구", dong: "세곡동", nx: 62, ny: 125, latitude: 37.4663667, longitude: 127.1093639 },
+  { gu: "송파구", dong: "위례동", nx: 63, ny: 125, latitude: 37.4791657, longitude: 127.1414918 },
+  { gu: "강동구", dong: "길동", nx: 63, ny: 126, latitude: 37.5392169, longitude: 127.1461684 },
 ];
 
 // ---- CSV 파싱 ----
@@ -162,8 +162,8 @@ export function extractTMN(json: any): number | null {
   }
 }
 
-// 오늘(fcstDate) 하루치 T1H(기온)/REH(습도) 예보값 평균 — DailyWeather 일일 적재용
-export function extractDailyAverage(json: any, category: "T1H" | "REH", fcstDate: string): number | null {
+// 오늘(fcstDate) 하루치 TMP(기온)/REH(습도) 예보값 평균 — DailyWeather 일일 적재용
+export function extractDailyAverage(json: any, category: "TMP" | "REH", fcstDate: string): number | null {
   try {
     const items = json.response.body.items.item;
     const values = items
