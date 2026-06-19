@@ -15,3 +15,9 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   console.error(err);
   res.status(500).json(errorResponse(500, "서버 내부 오류가 발생했습니다."));
 };
+
+export class PostNotFoundError extends AppError {
+  constructor() {
+    super(404, "존재하지 않는 게시글입니다.");
+  }
+}
