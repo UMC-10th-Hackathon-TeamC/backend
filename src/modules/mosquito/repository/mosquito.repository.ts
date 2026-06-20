@@ -1,5 +1,5 @@
 import { prisma } from "../../../db.config";
-import { District, MosquitoIndex } from "../../../generated/prisma/client";
+import { DailyWeather, District, MosquitoIndex } from "../../../generated/prisma/client";
 
 export class MosquitoRepository {
   async findLatestByDistrict(districtId: number): Promise<MosquitoIndex | null> {
@@ -40,11 +40,44 @@ export class MosquitoRepository {
     });
   }
 
-  async upsertDistrict(input: { name: string; latitude: number; longitude: number }): Promise<District> {
+  async upsertDistrict(input: {
+    name: string;
+    latitude: number;
+    longitude: number;
+    nx: number;
+    ny: number;
+  }): Promise<District> {
+    const { name, ...rest } = input;
     return prisma.district.upsert({
-      where: { name: input.name },
-      update: { latitude: input.latitude, longitude: input.longitude },
+      where: { name },
+      update: rest,
       create: input,
+    });
+  }
+
+  async countDailyWeather(districtId: number): Promise<number> {
+    return prisma.dailyWeather.count({ where: { districtId } });
+  }
+
+  async findRecentDailyWeather(districtId: number, limit = 14): Promise<DailyWeather[]> {
+    return prisma.dailyWeather.findMany({
+      where: { districtId },
+      orderBy: { date: "desc" },
+      take: limit,
+    });
+  }
+
+  async upsertDailyWeather(input: {
+    districtId: number;
+    date: Date;
+    avgTemp: number;
+    avgHum: number;
+  }): Promise<DailyWeather> {
+    const { districtId, date, ...rest } = input;
+    return prisma.dailyWeather.upsert({
+      where: { districtId_date: { districtId, date } },
+      update: rest,
+      create: { districtId, date, ...rest },
     });
   }
 }
