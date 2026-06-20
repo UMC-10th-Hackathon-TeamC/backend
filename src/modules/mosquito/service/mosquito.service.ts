@@ -11,12 +11,20 @@ import {
   getLatestBaseDateTime,
 } from "../mosquito.util";
 
-const LEVEL_LABELS: Record<number, string> = {
-  1: "관심",
-  2: "주의",
-  3: "경보",
-  4: "위험",
-};
+const SUB_LEVEL_RANGES: { max: number; label: string }[] = [
+  { max: 8.3, label: "관심(하)" },
+  { max: 16.6, label: "관심(중)" },
+  { max: 24.9, label: "관심(상)" },
+  { max: 33.3, label: "주의(하)" },
+  { max: 41.6, label: "주의(중)" },
+  { max: 49.9, label: "주의(상)" },
+  { max: 58.3, label: "경보(하)" },
+  { max: 66.6, label: "경보(중)" },
+  { max: 74.9, label: "경보(상)" },
+  { max: 83.3, label: "위험(하)" },
+  { max: 91.6, label: "위험(중)" },
+  { max: Infinity, label: "위험(상)" },
+];
 
 function startOfToday(): Date {
   const today = new Date();
@@ -41,8 +49,9 @@ export class MosquitoService {
     return 4;
   }
 
-  getLevelLabel(level: number): string {
-    return LEVEL_LABELS[level];
+  getSubLevelLabel(mosquitoIndex: number): string {
+    const range = SUB_LEVEL_RANGES.find((r) => mosquitoIndex <= r.max);
+    return (range ?? SUB_LEVEL_RANGES[SUB_LEVEL_RANGES.length - 1]).label;
   }
 
   async ensureTodayData(): Promise<void> {
