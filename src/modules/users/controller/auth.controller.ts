@@ -9,9 +9,11 @@ import { NotFoundError, AppError } from '../../../common/errors/app.error';
 @Tags("Auth")
 export class AuthController extends Controller {
 
-  /**
-   * 구글 OAuth2 로그인 페이지로 리다이렉트
-   */
+/**
+ * 구글 OAuth2 로그인 페이지로 리다이렉트합니다.
+ *
+ * @summary 구글 로그인 요청
+ */
   @Get("oauth2/login/google")
   public async googleLogin(): Promise<void> {
     // 실제 인증 처리는 auth.config에 등록된 passport GoogleStrategy가 수행함
@@ -20,6 +22,8 @@ export class AuthController extends Controller {
   /**
    * 구글 로그인 콜백 처리
    * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
+   * 
+   * @summary 구글 로그인 콜백
    */
   @Get("oauth2/callback/google")
   public async googleCallback(@Request() req: any): Promise<AuthResponseDto> {
@@ -53,6 +57,8 @@ export class AuthController extends Controller {
   /**
    * 로그아웃 처리
    * - 토큰을 검증하고 DB의 리프레쉬 토큰을 제거하여 세션 무효화
+   * 
+   * @summary 로그아웃
    */
   @Security("jwt")
   @Post("logout")

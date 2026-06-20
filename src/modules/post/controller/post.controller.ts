@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Path, Post, Queries, Route, Security, Request } from "tsoa";
+import { Body, Controller, Delete, Get, Patch, Path, Post, Queries, Route, Security, Request, Tags } from "tsoa";
 import { Request as ExpressRequest } from "express"; // Request 주입을 위해 추가
 import {
     PostAddRequest,
@@ -21,10 +21,13 @@ interface PostListQuery {
 }
 
 @Route("")
+@Tags("Post")
 export class PostController extends Controller {
-    /**
-     * 게시글 작성 API
-     */
+/**
+ * 로그인한 사용자가 게시글을 작성합니다.
+ *
+ * @summary 게시글 작성
+ */
     @Security("jwt")
     @Post("posts")
     public async handleAddPost(
@@ -43,9 +46,12 @@ export class PostController extends Controller {
         }
     }
 
-    /**
-     * 게시글 목록 조회 API
-     */
+/**
+ * 특정 자치구의 게시글 목록을 조회합니다.
+ *
+ * @summary 자치구 게시글 목록 조회
+ * @param districtId 자치구 ID
+ */
     @Get("districts/{districtId}/posts")
     public async handleGetPosts(
         @Path() districtId: number,
@@ -60,9 +66,12 @@ export class PostController extends Controller {
         }
     }
 
-    /**
-     * 게시글 상세 조회 API
-     */
+/**
+ * 게시글 상세 정보를 조회합니다.
+ *
+ * @summary 게시글 상세 조회
+ * @param postId 게시글 ID
+ */
     @Get("posts/{postId}")
     public async handleGetPost(
         @Path() postId: number,
@@ -76,9 +85,12 @@ export class PostController extends Controller {
         }
     }
 
-    /**
-     * 게시글 수정 API
-     */
+/**
+ * 로그인한 사용자가 본인의 게시글을 수정합니다.
+ *
+ * @summary 게시글 수정
+ * @param postId 게시글 ID
+ */
     @Security("jwt") // 인증 추가
     @Patch("posts/{postId}")
     public async handleUpdatePost(
@@ -96,9 +108,12 @@ export class PostController extends Controller {
         }
     }
 
-    /**
-     * 게시글 삭제 API
-     */
+/**
+ * 로그인한 사용자가 본인의 게시글을 삭제합니다.
+ *
+ * @summary 게시글 삭제
+ * @param postId 게시글 ID
+ */
     @Security("jwt")
     @Delete("posts/{postId}")
     public async handleDeletePost(
