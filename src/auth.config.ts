@@ -128,7 +128,15 @@ export function expressAuthentication(
     return new Promise((resolve, reject) => {
       passport.authenticate("jwt", { session: false }, (err: any, user: any, info: any) => {
         if (err) return reject(err);
+        
+        // 1. 여기서 인증 실패 시 상세 로그 확인
+        if (info) console.log("Passport Auth Info:", info);
         if (!user) return reject(new Error("토큰이 유효하지 않습니다."));
+
+        // 2. 중요: TSOA 인증 성공 시 request.user에 유저 정보를 명시적으로 저장
+        request.user = user; 
+        
+        // 3. resolve를 통해 성공 처리
         resolve(user);
       })(request, request.res);
     });

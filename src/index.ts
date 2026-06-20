@@ -13,19 +13,13 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-<<<<<<< HEAD
+
 // 3. 미들웨어 설정
 app.use(cors());                             
 app.use(express.static('public'));            
 app.use(express.json());                      
-app.use(express.urlencoded({ extended: false })); 
-=======
-// 2. 미들웨어 설정
-app.use(cors());
-app.use(express.static('public'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
->>>>>>> develop-test
+app.use(express.urlencoded({ extended: true })); 
+
 
 // 4. Passport 초기화 (Passport 미들웨어 등록)
 app.use(passport.initialize());

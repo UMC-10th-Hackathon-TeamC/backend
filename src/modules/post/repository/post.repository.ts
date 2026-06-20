@@ -1,14 +1,17 @@
 import { prisma } from "../../../db.config.js";
 
-export const createPost = async (data: {
-    userId: number;
-    districtId: number;
-    category: string;
-    title: string;
-    content: string;
-}) => {
+export const createPost = async (
+    userId: number, 
+    data: { districtId: number; category: string; title: string; content: string }
+) => {
     return await prisma.post.create({
-        data,
+        data: {
+            userId: userId,     // 👈 userId는 따로 할당
+            districtId: data.districtId,
+            category: data.category,
+            title: data.title,
+            content: data.content,
+        },
     });
 };
 
