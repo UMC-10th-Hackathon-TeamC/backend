@@ -1,15 +1,35 @@
 import { prisma } from "../../../db.config";
-import { District, MosquitoIndex } from "../../../generated/prisma/client";
+import type { District, MosquitoIndex } from "../../../generated/prisma/client";
 
-export type RankingRow = MosquitoIndex & {
-  district: District;
+export type RankingRow = {
+  id: number;
+  districtId: number;
+  date: Date;
+  mosquitoIndex: number;
+  level: number;
+  createdAt: Date;
+  district: {
+    id: number;
+    name: string;
+  };
 };
 
 export class RankingRepository {
   async findAllLatestWithDistrict(): Promise<RankingRow[]> {
     const rows = await prisma.mosquitoIndex.findMany({
-      include: {
-        district: true,
+      select: {
+        id: true,
+        districtId: true,
+        date: true,
+        mosquitoIndex: true,
+        level: true,
+        createdAt: true,
+        district: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: [
         { date: "desc" },
