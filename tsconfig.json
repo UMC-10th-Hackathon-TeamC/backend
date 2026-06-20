@@ -10,11 +10,5 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "dist"
-  },
-<<<<<<< HEAD
-  
-=======
->>>>>>> develop-test
-  "include": ["src/**/*.ts", "prisma.config.ts"]
-
+  }, "include": ["src/**/*.ts", "prisma.config.ts"]
 }
