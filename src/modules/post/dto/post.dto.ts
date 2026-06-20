@@ -1,6 +1,5 @@
 export interface PostAddRequest {
-    /** 작성자 ID */
-    userId: number;
+    
     /** 자치구 ID */
     districtId: number;
     /** 카테고리 */
