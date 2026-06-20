@@ -8,7 +8,10 @@ import * as express from "express";
 
 dotenv.config();
 
-// 1. JWT 토큰 생성 함수
+// ==========================================
+// 1. JWT 및 인증 유틸리티
+// ==========================================
+
 export const generateAccessToken = (user: { id: number; email: string }) => {
   return jwt.sign(
     { id: user.id, email: user.email },
@@ -25,7 +28,21 @@ export const generateRefreshToken = (user: { id: number }) => {
   );
 };
 
-// 2. Google Verify 로직 (DB Upsert)
+/**
+ * 요청 객체에서 유저 ID를 안전하게 추출
+ */
+export const getUserIdFromRequest = (req: any): number => {
+  const user = req.user as { id: number } | undefined;
+  if (!user || !user.id) {
+    throw new Error("인증되지 않은 사용자입니다.");
+  }
+  return user.id;
+};
+
+// ==========================================
+// 2. Google OAuth 로직
+// ==========================================
+
 const googleVerify = async (profile: Profile) => {
   const email = profile.emails?.[0]?.value;
   if (!email) throw new Error("Google 프로필에 이메일이 없습니다.");
@@ -41,11 +58,13 @@ const googleVerify = async (profile: Profile) => {
     });
   }
   return { id: user.id, email: user.email, nickname: user.nickname };
-  
-  
 };
 
-// 3. Passport 전략 등록
+// ==========================================
+// 3. Passport 전략 설정
+// ==========================================
+
+// Google Strategy
 passport.use(
   "google",
   new GoogleStrategy(
@@ -66,6 +85,7 @@ passport.use(
   )
 );
 
+// JWT Strategy
 passport.use(
   "jwt",
   new JwtStrategy(
@@ -84,7 +104,7 @@ passport.use(
   )
 );
 
-// 4. Passport 세션 규격 (세션 미사용 시에도 필수)
+// Passport 세션 규격 (세션 미사용 시에도 필수)
 passport.serializeUser((user: any, done) => done(null, user.id));
 passport.deserializeUser(async (id: number, done) => {
   try {
@@ -94,6 +114,10 @@ passport.deserializeUser(async (id: number, done) => {
     done(err);
   }
 });
+
+// ==========================================
+// 4. TSOA 인증 미들웨어
+// ==========================================
 
 export function expressAuthentication(
   request: express.Request,
