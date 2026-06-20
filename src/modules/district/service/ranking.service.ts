@@ -34,7 +34,7 @@ export class RankingService {
       id: index.district.id,
       name: index.district.name,
       mosquitoIndex: index.mosquitoIndex,
-      level: this.mosquitoService.getLevelLabel(index.level),
+      level: this.mosquitoService.getSubLevelLabel(index.mosquitoIndex),
     }));
 
     return {
