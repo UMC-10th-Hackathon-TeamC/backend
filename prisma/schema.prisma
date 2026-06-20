@@ -58,6 +58,7 @@ model User {
   email        String   @unique
   nickname     String
   profileImage String?
+  refreshToken String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

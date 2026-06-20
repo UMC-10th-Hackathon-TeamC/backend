@@ -14,11 +14,14 @@ import {
     deletePost,
 } from "../repository/post.repository.js";
 import { PostNotFoundError } from "../../../common/errors/error.js";
+import { AppError } from "../../../common/errors/app.error.js";
+import { StatusCodes } from "http-status-codes";
 
 export const postAdd = async (
+    userId: number,
     data: PostAddRequest
 ): Promise<PostAddResponse> => {
-    const post = await createPost(data);
+    const post = await createPost(userId, data);
     return {
         id: post.id,
         title: post.title,
@@ -71,6 +74,7 @@ export const postDetail = async (postId: number): Promise<PostDetailResponse> =>
 };
 
 export const postUpdate = async (
+    userId: number,
     postId: number,
     data: PostUpdateRequest
 ): Promise<void> => {
@@ -79,13 +83,24 @@ export const postUpdate = async (
         throw new PostNotFoundError();
     }
 
+    if (post.userId !== userId) {
+        throw new AppError(StatusCodes.FORBIDDEN, "본인의 게시글만 수정할 수 있습니다.");
+    }
+
     await updatePost(postId, data);
 };
 
-export const postDelete = async (postId: number): Promise<void> => {
+export const postDelete = async (
+    userId: number,
+    postId: number
+): Promise<void> => {
     const post = await findPostById(postId);
     if (!post) {
         throw new PostNotFoundError();
+    }
+
+    if (post.userId !== userId) {
+        throw new AppError(StatusCodes.FORBIDDEN, "본인의 게시글만 삭제할 수 있습니다.");
     }
 
     await deletePost(postId);
