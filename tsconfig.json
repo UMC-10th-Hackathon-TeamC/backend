@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -10,6 +10,5 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "dist"
-  },
-  "include": ["src/**/*.ts", "build/**/*.ts"]
+  }, "include": ["src/**/*.ts", "prisma.config.ts"]
 }

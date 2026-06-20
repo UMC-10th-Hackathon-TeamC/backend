@@ -1,3 +1,10 @@
 node_modules/
-/generated/prisma
+src/generated/
+dist/
 .env
+.idea
+weather.csv
+v1.js
+mosquito_project_summary.md
+mosquito_map_full_spec.md
+CLAUDE.md

@@ -1,12 +1,13 @@
 {
   "entryFile": "src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["src/controllers/**/*.controller.ts"],
+  "controllerPathGlobs": ["src/modules/**/controller/*.controller.ts"],
   "spec": {
-    "outputDirectory": "build",
+    "outputDirectory": "src/generated",
     "specVersion": 3
   },
   "routes": {
-    "routesDir": "build"
+    "routesDir": "src/generated",
+    "authenticationModule": "src/auth.config.ts"
   }
 }
