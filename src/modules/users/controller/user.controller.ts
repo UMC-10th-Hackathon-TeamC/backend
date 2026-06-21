@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Route, Tags, Request, Body, Security, Query } from 'tsoa';
+import { Controller, Get, Patch, Route, Tags, Request, Body, Security, Query, Example, Response } from 'tsoa';
 import { ApiResponse } from '../../../common/responses/response.js';
 import { UserService } from '../service/user.service';
 import { UserProfileData, UpdateNicknameRequest, UpdateNicknameData, DistrictInfoData } from '../dto/user.dto';
@@ -17,6 +17,24 @@ export class UserController extends Controller {
  */
   @Security("jwt")
   @Get("me")
+  @Example<ApiResponse<UserProfileData>>({
+    success: true,
+    statusCode: 200,
+    message: "프로필 조회 성공",
+    data: {
+      id: 1,
+      email: "hong@example.com",
+      nickname: "홍길동",
+      profileImage: "https://example.com/profile/honggildong.jpg",
+      createdAt: new Date("2026-06-20T16:00:00.000Z"),
+    },
+  })
+  @Response<ApiResponse<null>>(404, "사용자 프로필을 찾을 수 없습니다.", {
+    success: false,
+    statusCode: 404,
+    message: "사용자 프로필을 찾을 수 없습니다.",
+    data: null,
+  })
   public async getMyProfile(@Request() req: any): Promise<ApiResponse<UserProfileData>> {
     // 1. 유틸리티 함수로 토큰에서 유저 ID를 안전하게 추출
     const userId = getUserIdFromRequest(req); 
@@ -42,6 +60,21 @@ export class UserController extends Controller {
  */
   @Security("jwt")
   @Patch("me")
+  @Example<ApiResponse<UpdateNicknameData>>({
+    success: true,
+    statusCode: 200,
+    message: "닉네임 수정 성공",
+    data: {
+      id: 1,
+      nickname: "홍길동",
+    },
+  })
+  @Response<ApiResponse<null>>(400, "변경할 닉네임을 입력해주세요.", {
+    success: false,
+    statusCode: 400,
+    message: "변경할 닉네임을 입력해주세요.",
+    data: null,
+  })
   public async updateMyNickname(
     @Request() req: any, 
     @Body() body: UpdateNicknameRequest
@@ -74,6 +107,29 @@ export class UserController extends Controller {
  */
   @Security("jwt")
   @Get("me/district")
+  @Example<ApiResponse<DistrictInfoData>>({
+    success: true,
+    statusCode: 200,
+    message: "자치구 조회 성공",
+    data: {
+      id: 1,
+      name: "강남구",
+      mosquitoIndex: 75,
+      level: "높음",
+    },
+  })
+  @Response<ApiResponse<null>>(400, "위도와 경도 정보가 필요합니다.", {
+    success: false,
+    statusCode: 400,
+    message: "위도와 경도 정보가 필요합니다.",
+    data: null,
+  })
+  @Response<ApiResponse<null>>(404, "해당 위치의 자치구 정보를 찾을 수 없습니다.", {
+    success: false,
+    statusCode: 404,
+    message: "해당 위치의 자치구 정보를 찾을 수 없습니다.",
+    data: null,
+  })
   public async getMyDistrict(
     @Request() req: any,
     @Query() latitude: number,
