@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Route, Tags, Security, Request } from 'tsoa';
+import { Controller, Get, Post, Route, Tags, Security, Request, Middlewares } from 'tsoa';
 import { Response } from 'express'; // Express 타입 추가
 import passport from '../../../auth.config';
 import { AuthResponseDto, AuthNullResponseDto } from '../dto/auth.dto';
@@ -18,6 +18,7 @@ export class OAuthController extends Controller {
    * @summary 구글 로그인 요청
    */
   @Get("login/google")
+  @Middlewares(passport.authenticate("google", { session: false, scope: ["email", "profile"] }))
   public async googleLogin(): Promise<void> {
     // 실제 인증 처리는 passport GoogleStrategy가 수행함
   }
@@ -27,21 +28,16 @@ export class OAuthController extends Controller {
    * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
    * * @summary 구글 로그인 콜백
    */
-  @Get("callback/google")
-  public async googleCallback(@Request() req: any): Promise<any> {
-    // 1. Express의 response 객체 안전하게 추출
-    const res: Response = req.res;
-
-    // 2. Passport를 사용하여 구글 인증 수행
+  @Get("oauth2/callback/google")
+  public async googleCallback(@Request() req: any): Promise<void> {
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
         if (!user) return reject(new AppError(401, info?.message || "인증 실패"));
         resolve(user);
-      })(req, res);
+      })(req, req.res);
     });
 
-    // 3. JWT 발급 및 DB 업데이트
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -50,21 +46,8 @@ export class OAuthController extends Controller {
       data: { refreshToken: refreshToken }
     });
 
-    // 4. 플랫폼별 응답 처리 (웹 vs 모바일)
-    const platform = req.query.platform; // 호출 시 ?platform=mobile 추가
-    
-    if (platform === 'mobile') {
-      const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
-      return res.redirect(redirectUrl);
-    }
-
-    // 웹용 JSON 응답
-    return {
-      success: true,
-      statusCode: 200,
-      message: "로그인 성공",
-      data: { accessToken, refreshToken }
-    };
+    const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    req.res.redirect(redirectUrl);
   }
 }
 
