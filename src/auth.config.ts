@@ -39,6 +39,24 @@ export const getUserIdFromRequest = (req: any): number => {
   return user.id;
 };
 
+/**
+ * 비로그인도 허용하는 라우트에서, 토큰이 있으면 검증해 userId를 꺼내고
+ * 토큰이 없거나 유효하지 않으면 undefined를 반환한다 (인증 실패로 막지 않음).
+ */
+export const getOptionalUserIdFromRequest = (req: any): number | undefined => {
+  const authHeader = req.headers?.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return undefined;
+  }
+
+  try {
+    const payload = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET!) as { id: number };
+    return payload.id;
+  } catch {
+    return undefined;
+  }
+};
+
 // ==========================================
 // 2. Google OAuth 로직
 // ==========================================
