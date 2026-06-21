@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Route, Tags, Security, Request, Middlewares } from 'tsoa';
-import { Response } from 'express'; // Express 타입 추가
+import { Controller, Get, Post, Route, Tags, Security, Request, Res, Middlewares } from 'tsoa';
+import { Response } from 'express';
 import passport from '../../../auth.config';
-import { AuthResponseDto, AuthNullResponseDto } from '../dto/auth.dto';
+import { AuthNullResponseDto } from '../dto/auth.dto';
 import { generateAccessToken, generateRefreshToken, getUserIdFromRequest } from '../../../auth.config';
 import { prisma } from '../../../db.config';
 import { NotFoundError, AppError } from '../../../common/errors/app.error';
@@ -26,10 +26,10 @@ export class OAuthController extends Controller {
   /**
    * 구글 로그인 콜백 처리
    * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
-   * * @summary 구글 로그인 콜백
+   * @summary 구글 로그인 콜백
    */
-  @Get("oauth2/callback/google")
-  public async googleCallback(@Request() req: any): Promise<void> {
+  @Get("callback/google")
+  public async googleCallback(@Request() req: any, @Res() res: Response): Promise<void> {
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
@@ -61,7 +61,7 @@ export class AuthController extends Controller {
   /**
    * 로그아웃 처리
    * - 토큰을 검증하고 DB의 리프레쉬 토큰을 제거하여 세션 무효화
-   * * @summary 로그아웃
+   * @summary 로그아웃
    */
   @Security("jwt")
   @Post("logout")
