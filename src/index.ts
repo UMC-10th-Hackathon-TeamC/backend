@@ -31,8 +31,26 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World! This is TypeScript Server!");
 });
 
-// 6. TSOA가 생성한 컨트롤러 라우트 등록
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// 6. TSOA가 생성한 컨트롤러 라우트 등록 (수정된 부분)
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    swaggerOptions: {
+      // OpenAPI 3.0 이상 스펙에 맞춘 설정
+      components: {
+        securitySchemes: {
+          jwt: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+      security: [{ jwt: [] }],
+    },
+  })
+);
 RegisterRoutes(app);
 
 // 7. 에러 핸들링 미들웨어 (가장 마지막에 위치)

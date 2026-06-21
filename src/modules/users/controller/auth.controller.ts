@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Route, Tags, Security, Request, Res, Middlewares } from 'tsoa';
+import { Controller, Get, Post, Route, Tags, Security, Request, Body, Middlewares, Res, TsoaResponse } from 'tsoa';
 import { Response } from 'express';
 import passport from '../../../auth.config';
 import { AuthNullResponseDto } from '../dto/auth.dto';
@@ -28,14 +28,17 @@ export class OAuthController extends Controller {
    * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
    * @summary 구글 로그인 콜백
    */
-  @Get("/callback/google")
-  public async googleCallback(@Request() req: any): Promise<void> {
+  @Get("callback/google")
+  public async googleCallback(
+    @Request() req: any, 
+    @Res() res: Response
+  ): Promise<void> {
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
         if (!user) return reject(new AppError(401, info?.message || "인증 실패"));
         resolve(user);
-      })(req, req.res);
+      })(req, res);
     });
 
     const accessToken = generateAccessToken(user);
@@ -47,7 +50,9 @@ export class OAuthController extends Controller {
     });
 
     const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
-    req.res.redirect(redirectUrl);
+    
+    // Express의 redirect를 사용하여 앱으로 이동
+    return res.redirect(redirectUrl);
   }
 }
 
@@ -57,6 +62,20 @@ export class OAuthController extends Controller {
 @Route("auth")
 @Tags("Auth")
 export class AuthController extends Controller {
+
+  /**
+   * [개발용] 로컬 테스트 토큰 생성 API
+   * @summary 로컬 테스트용 토큰 발급
+   */
+  @Post("local/token")
+  public async getLocalToken(@Body() body: { userId: number }): Promise<{ token: string }> {
+    // 실제 운영 환경에서는 사용되지 않도록 방어 코드 추가
+    if (process.env.NODE_ENV === 'production') {
+      throw new AppError(403, "운영 환경에서는 사용할 수 없습니다.");
+    }
+    const token = generateAccessToken({ id: body.userId } as any);
+    return { token };
+  }
 
   /**
    * 로그아웃 처리
