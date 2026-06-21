@@ -39,7 +39,7 @@ export class RankingService {
       id: index.district.id,
       name: index.district.name,
       mosquitoIndex: index.mosquitoIndex,
-      level: this.mosquitoService.getLevelLabel(index.level) ?? "알 수 없음",
+      level: this.mosquitoService.getSubLevelLabel(index.level) ?? "알 수 없음",
     }));
 
     return {

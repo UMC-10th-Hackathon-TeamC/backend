@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Route, Tags, Security, Request } from 'tsoa';
+import { Response } from 'express'; // Express 타입 추가
 import passport from '../../../auth.config';
 import { AuthResponseDto, AuthNullResponseDto } from '../dto/auth.dto';
 import { generateAccessToken, generateRefreshToken, getUserIdFromRequest } from '../../../auth.config';
@@ -12,16 +13,26 @@ import { NotFoundError, AppError } from '../../../common/errors/app.error';
 @Tags("OAuth2")
 export class OAuthController extends Controller {
 
+  /**
+   * 구글 OAuth2 로그인 페이지로 리다이렉트합니다.
+   * @summary 구글 로그인 요청
+   */
   @Get("login/google")
   public async googleLogin(): Promise<void> {
     // 실제 인증 처리는 passport GoogleStrategy가 수행함
   }
 
+  /**
+   * 구글 로그인 콜백 처리
+   * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
+   * * @summary 구글 로그인 콜백
+   */
   @Get("callback/google")
   public async googleCallback(@Request() req: any): Promise<any> {
-    const res = req.res; // Express 응답 객체 사용
+    // 1. Express의 response 객체 안전하게 추출
+    const res: Response = req.res;
 
-    // 1. Passport 인증 수행
+    // 2. Passport를 사용하여 구글 인증 수행
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
@@ -30,7 +41,7 @@ export class OAuthController extends Controller {
       })(req, res);
     });
 
-    // 2. JWT 발급
+    // 3. JWT 발급 및 DB 업데이트
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -39,7 +50,7 @@ export class OAuthController extends Controller {
       data: { refreshToken: refreshToken }
     });
 
-    // 3. [추가] 플랫폼별 응답 처리 (웹 vs 모바일)
+    // 4. 플랫폼별 응답 처리 (웹 vs 모바일)
     const platform = req.query.platform; // 호출 시 ?platform=mobile 추가
     
     if (platform === 'mobile') {
@@ -64,6 +75,11 @@ export class OAuthController extends Controller {
 @Tags("Auth")
 export class AuthController extends Controller {
 
+  /**
+   * 로그아웃 처리
+   * - 토큰을 검증하고 DB의 리프레쉬 토큰을 제거하여 세션 무효화
+   * * @summary 로그아웃
+   */
   @Security("jwt")
   @Post("logout")
   public async logout(@Request() req: any): Promise<AuthNullResponseDto> {
