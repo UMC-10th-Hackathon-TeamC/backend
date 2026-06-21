@@ -73,7 +73,8 @@ passport.use(
       clientSecret: process.env.PASSPORT_GOOGLE_CLIENT_SECRET!,
       // 여기서 환경 변수를 사용하도록 변경합니다!
       // src/auth.config.ts
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/api/auth/oauth2/callback/google",
+      // auth.config.ts 예시
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/oauth2/callback/google",
       scope: ["email", "profile"],
     },
     async (_accessToken, _refreshToken, profile, cb) => {

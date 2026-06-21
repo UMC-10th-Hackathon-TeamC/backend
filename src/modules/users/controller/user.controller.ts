@@ -5,7 +5,7 @@ import { UserProfileData, UpdateNicknameRequest, UpdateNicknameData, DistrictInf
 import { getUserIdFromRequest } from '../../../auth.config';
 import { AppError, NotFoundError } from '../../../common/errors/app.error';
 
-@Route("api/users")
+@Route("users")
 @Tags("User")
 export class UserController extends Controller {
   private userService = new UserService();
