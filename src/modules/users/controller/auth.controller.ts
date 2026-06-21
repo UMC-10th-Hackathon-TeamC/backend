@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Route, Tags, Security, Request, Body, Middlewares, Res, TsoaResponse } from 'tsoa';
-import { Response } from 'express';
+import { Body, Controller, Get, Middlewares, Post, Route, Security, Tags, Request } from 'tsoa';
 import passport from '../../../auth.config';
 import { AuthNullResponseDto } from '../dto/auth.dto';
-import { generateAccessToken, generateRefreshToken, getUserIdFromRequest } from '../../../auth.config';
+import { generateAccessToken, getUserIdFromRequest } from '../../../auth.config';
 import { prisma } from '../../../db.config';
 import { NotFoundError, AppError } from '../../../common/errors/app.error';
 
@@ -25,22 +24,22 @@ export class OAuthController extends Controller {
 
   /**
    * 구글 로그인 콜백 처리
-   * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
+   * - TSOA 빌드 에러 방지를 위해 @Res() 대신 req.res 사용
    * @summary 구글 로그인 콜백
    */
   @Get("callback/google")
-  public async googleCallback(
-    @Request() req: any, 
-    @Res() res: Response
-  ): Promise<void> {
+  public async googleCallback(@Request() req: any): Promise<void> {
+    // 1. Passport 인증 수행 (Promise로 래핑)
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
         if (!user) return reject(new AppError(401, info?.message || "인증 실패"));
         resolve(user);
-      })(req, res);
+      })(req, req.res);
     });
 
+    // 2. 토큰 및 리프레시 토큰 로직
+    const { generateAccessToken, generateRefreshToken } = require('../../../auth.config');
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -49,10 +48,9 @@ export class OAuthController extends Controller {
       data: { refreshToken: refreshToken }
     });
 
+    // 3. 앱으로 리다이렉트
     const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
-    
-    // Express의 redirect를 사용하여 앱으로 이동
-    return res.redirect(redirectUrl);
+    req.res.redirect(redirectUrl);
   }
 }
 
@@ -66,10 +64,12 @@ export class AuthController extends Controller {
   /**
    * [개발용] 로컬 테스트 토큰 생성 API
    * @summary 로컬 테스트용 토큰 발급
+   * @description 운영 환경에서는 사용이 차단된 개발자 전용 API입니다. userId를 입력하여 테스트용 JWT를 받습니다.
+   * @param body { userId: number } - 테스트에 사용할 사용자 ID
+   * @example body { "userId": 1 }
    */
   @Post("local/token")
   public async getLocalToken(@Body() body: { userId: number }): Promise<{ token: string }> {
-    // 실제 운영 환경에서는 사용되지 않도록 방어 코드 추가
     if (process.env.NODE_ENV === 'production') {
       throw new AppError(403, "운영 환경에서는 사용할 수 없습니다.");
     }
@@ -79,7 +79,6 @@ export class AuthController extends Controller {
 
   /**
    * 로그아웃 처리
-   * - 토큰을 검증하고 DB의 리프레쉬 토큰을 제거하여 세션 무효화
    * @summary 로그아웃
    */
   @Security("jwt")
