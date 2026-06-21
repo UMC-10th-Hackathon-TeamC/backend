@@ -76,10 +76,12 @@ export class PostController extends Controller {
  */
     @Get("posts/{postId}")
     public async handleGetPost(
+        @Request() req: ExpressRequest,
         @Path() postId: number,
     ): Promise<ApiResponse<PostDetailResponse>> {
         try {
-            const post = await postDetail(postId);
+            const userId = getOptionalUserIdFromRequest(req);
+            const post = await postDetail(postId, userId);
             return successResponse(StatusCodes.OK, "게시글 조회 성공", post);
         } catch (err) {
             if (err instanceof AppError) throw err;

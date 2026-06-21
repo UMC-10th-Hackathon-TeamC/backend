@@ -1,4 +1,4 @@
-import { LikeAddRequest, LikeResponse } from "../dto/like.dto.js";
+import { LikeResponse } from "../dto/like.dto.js";
 import {
     findLike,
     createLike,
@@ -11,22 +11,22 @@ import { AppError } from "../../../common/errors/app.error.js";
 
 export const likeAdd = async (
     postId: number,
-    data: LikeAddRequest
+    userId: number
 ): Promise<LikeResponse> => {
     const post = await findPostById(postId);
     if (!post) {
         throw new PostNotFoundError();
     }
 
-    const existing = await findLike(postId, data.userId);
+    const existing = await findLike(postId, userId);
     if (existing) {
         throw new AppError(409, "이미 좋아요한 게시글입니다.");
     }
 
-    await createLike(postId, data.userId);
+    await createLike(postId, userId);
     const likeCount = await countLikes(postId);
 
-    return { likeCount };
+    return { likeCount, isLiked: true };
 };
 
 export const likeCancel = async (
@@ -46,5 +46,5 @@ export const likeCancel = async (
     await deleteLike(postId, userId);
     const likeCount = await countLikes(postId);
 
-    return { likeCount };
+    return { likeCount, isLiked: false };
 };
