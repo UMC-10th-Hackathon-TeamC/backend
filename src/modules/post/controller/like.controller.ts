@@ -1,4 +1,4 @@
-import { Controller, Delete, Path, Post, Request, Route, Security, Tags } from "tsoa";
+import { Controller, Delete, Example, Path, Post, Request, Response, Route, Security, Tags } from "tsoa";
 import { Request as ExpressRequest } from "express";
 import { LikeResponse } from "../dto/like.dto.js";
 import { likeAdd, likeCancel } from "../service/like.service.js";
@@ -18,6 +18,24 @@ export class LikeController extends Controller {
  */
     @Security("jwt")
     @Post("posts/{postId}/likes")
+    @Example<ApiResponse<LikeResponse>>({
+        success: true,
+        statusCode: 200,
+        message: "좋아요 성공",
+        data: { likeCount: 12, isLiked: true },
+    })
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
+    @Response<ApiResponse<null>>(409, "이미 좋아요한 게시글입니다.", {
+        success: false,
+        statusCode: 409,
+        message: "이미 좋아요한 게시글입니다.",
+        data: null,
+    })
     public async handleAddLike(
         @Request() req: ExpressRequest,
         @Path() postId: number,
@@ -40,6 +58,24 @@ export class LikeController extends Controller {
  */
     @Security("jwt")
     @Delete("posts/{postId}/likes")
+    @Example<ApiResponse<LikeResponse>>({
+        success: true,
+        statusCode: 200,
+        message: "좋아요 취소 성공",
+        data: { likeCount: 11, isLiked: false },
+    })
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
+    @Response<ApiResponse<null>>(400, "좋아요하지 않은 게시글입니다.", {
+        success: false,
+        statusCode: 400,
+        message: "좋아요하지 않은 게시글입니다.",
+        data: null,
+    })
     public async handleDeleteLike(
         @Request() req: ExpressRequest,
         @Path() postId: number,

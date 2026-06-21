@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Patch, Path, Post, Route, Security, Request, Tags } from "tsoa";
+import { Body, Controller, Delete, Get, Patch, Path, Post, Route, Security, Request, Tags, Example, Response } from "tsoa";
 import { Request as ExpressRequest } from "express"; // Request 주입을 위해 추가
-import { 
-    CommentAddRequest, 
-    CommentAddResponse, 
-    CommentListResponse, 
+import {
+    CommentAddRequest,
+    CommentAddResponse,
+    CommentListResponse,
     CommentUpdateRequest,
 } from "../dto/comment.dto.js";
 import { commentAdd, commentList, commentUpdate, commentDelete } from "../service/comment.service.js";
@@ -22,6 +22,22 @@ export class CommentController extends Controller {
      */
     @Security("jwt") // 인증 추가
     @Post("{postId}/comments")
+    @Example<ApiResponse<CommentAddResponse>>({
+        success: true,
+        statusCode: 201,
+        message: "댓글 작성 성공",
+        data: {
+            id: 1,
+            content: "좋은 정보 감사합니다!",
+            createdAt: new Date("2026-06-21T00:00:00.000Z"),
+        },
+    })
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
     public async handleAddComment(
         @Request() req: ExpressRequest, // Express Request 주입
         @Path() postId: number,
@@ -43,6 +59,28 @@ export class CommentController extends Controller {
      * @summary 댓글 목록 조회
      */
     @Get("{postId}/comments")
+    @Example<ApiResponse<CommentListResponse>>({
+        success: true,
+        statusCode: 200,
+        message: "댓글 목록 조회 성공",
+        data: {
+            comments: [
+                {
+                    id: 1,
+                    content: "좋은 정보 감사합니다!",
+                    author: "홍길동",
+                    createdAt: new Date("2026-06-21T00:00:00.000Z"),
+                    updatedAt: new Date("2026-06-21T00:00:00.000Z"),
+                },
+            ],
+        },
+    })
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
     public async handleGetComments(
         @Path() postId: number,
     ): Promise<ApiResponse<CommentListResponse>> {
@@ -62,6 +100,18 @@ export class CommentController extends Controller {
      */
     @Security("jwt") // 인증 추가
     @Patch("{postId}/comments/{commentId}")
+    @Response<ApiResponse<null>>(404, "존재하지 않는 댓글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 댓글입니다.",
+        data: null,
+    })
+    @Response<ApiResponse<null>>(403, "본인이 작성한 댓글만 수정할 수 있습니다.", {
+        success: false,
+        statusCode: 403,
+        message: "본인이 작성한 댓글만 수정할 수 있습니다.",
+        data: null,
+    })
     public async handleUpdateComment(
         @Request() req: ExpressRequest,
         @Path() postId: number,
@@ -84,6 +134,18 @@ export class CommentController extends Controller {
      */
     @Security("jwt") // 인증 추가
     @Delete("{postId}/comments/{commentId}")
+    @Response<ApiResponse<null>>(404, "존재하지 않는 댓글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 댓글입니다.",
+        data: null,
+    })
+    @Response<ApiResponse<null>>(403, "본인이 작성한 댓글만 삭제할 수 있습니다.", {
+        success: false,
+        statusCode: 403,
+        message: "본인이 작성한 댓글만 삭제할 수 있습니다.",
+        data: null,
+    })
     public async handleDeleteComment(
         @Request() req: ExpressRequest,
         @Path() postId: number,

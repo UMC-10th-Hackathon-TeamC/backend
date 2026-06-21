@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Path, Post, Queries, Route, Security, Request, Tags } from "tsoa";
+import { Body, Controller, Delete, Example, Get, Patch, Path, Post, Queries, Response, Route, Security, Request, Tags } from "tsoa";
 import { Request as ExpressRequest } from "express"; // Request 주입을 위해 추가
 import {
     PostAddRequest,
@@ -30,6 +30,16 @@ export class PostController extends Controller {
  */
     @Security("jwt")
     @Post("posts")
+    @Example<ApiResponse<PostAddResponse>>({
+        success: true,
+        statusCode: 201,
+        message: "게시글 작성 성공",
+        data: {
+            id: 1,
+            title: "강남구 모기 너무 많아요",
+            createdAt: new Date("2026-06-21T00:00:00.000Z"),
+        },
+    })
     public async handleAddPost(
         @Request() req: ExpressRequest, // Request 주입
         @Body() body: PostAddRequest,
@@ -53,6 +63,29 @@ export class PostController extends Controller {
  * @param districtId 자치구 ID
  */
     @Get("districts/{districtId}/posts")
+    @Example<ApiResponse<PostListResponse>>({
+        success: true,
+        statusCode: 200,
+        message: "게시글 목록 조회 성공",
+        data: {
+            posts: [
+                {
+                    id: 2,
+                    title: "강남구 모기 너무 많아요",
+                    content: "퇴근하는데 모기한테 세 군데나 물렸어요...",
+                    category: "잡담",
+                    author: "정지훈",
+                    viewCount: 12,
+                    likeCount: 3,
+                    commentCount: 1,
+                    createdAt: new Date("2026-06-21T00:00:00.000Z"),
+                    isMine: true,
+                    isLiked: false,
+                },
+            ],
+            nextCursor: 1,
+        },
+    })
     public async handleGetPosts(
         @Request() req: ExpressRequest,
         @Path() districtId: number,
@@ -75,6 +108,31 @@ export class PostController extends Controller {
  * @param postId 게시글 ID
  */
     @Get("posts/{postId}")
+    @Example<ApiResponse<PostDetailResponse>>({
+        success: true,
+        statusCode: 200,
+        message: "게시글 조회 성공",
+        data: {
+            id: 2,
+            title: "강남구 모기 너무 많아요",
+            content: "퇴근하는데 모기한테 세 군데나 물렸어요...",
+            category: "잡담",
+            author: "정지훈",
+            districtName: "강남구",
+            viewCount: 13,
+            likeCount: 3,
+            commentCount: 1,
+            createdAt: new Date("2026-06-21T00:00:00.000Z"),
+            updatedAt: new Date("2026-06-21T00:00:00.000Z"),
+            isLiked: false,
+        },
+    })
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
     public async handleGetPost(
         @Request() req: ExpressRequest,
         @Path() postId: number,
@@ -97,6 +155,18 @@ export class PostController extends Controller {
  */
     @Security("jwt") // 인증 추가
     @Patch("posts/{postId}")
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
+    @Response<ApiResponse<null>>(403, "본인의 게시글만 수정할 수 있습니다.", {
+        success: false,
+        statusCode: 403,
+        message: "본인의 게시글만 수정할 수 있습니다.",
+        data: null,
+    })
     public async handleUpdatePost(
         @Request() req: ExpressRequest, // Request 주입
         @Path() postId: number,
@@ -120,6 +190,18 @@ export class PostController extends Controller {
  */
     @Security("jwt")
     @Delete("posts/{postId}")
+    @Response<ApiResponse<null>>(404, "존재하지 않는 게시글입니다.", {
+        success: false,
+        statusCode: 404,
+        message: "존재하지 않는 게시글입니다.",
+        data: null,
+    })
+    @Response<ApiResponse<null>>(403, "본인의 게시글만 삭제할 수 있습니다.", {
+        success: false,
+        statusCode: 403,
+        message: "본인의 게시글만 삭제할 수 있습니다.",
+        data: null,
+    })
     public async handleDeletePost(
         @Request() req: ExpressRequest, // Request 주입
         @Path() postId: number,

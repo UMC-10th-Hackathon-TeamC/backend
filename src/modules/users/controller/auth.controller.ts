@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Route, Tags, Security, Request, Body, Middlewares, Res, TsoaResponse } from 'tsoa';
-import { Response } from 'express';
+import { Controller, Get, Post, Route, Tags, Security, Request, Body, Middlewares } from 'tsoa';
 import passport from '../../../auth.config';
 import { AuthNullResponseDto } from '../dto/auth.dto';
 import { generateAccessToken, generateRefreshToken, getUserIdFromRequest } from '../../../auth.config';
@@ -30,15 +29,14 @@ export class OAuthController extends Controller {
    */
   @Get("callback/google")
   public async googleCallback(
-    @Request() req: any, 
-    @Res() res: Response
+    @Request() req: any
   ): Promise<void> {
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
         if (!user) return reject(new AppError(401, info?.message || "인증 실패"));
         resolve(user);
-      })(req, res);
+      })(req, req.res);
     });
 
     const accessToken = generateAccessToken(user);
@@ -50,9 +48,9 @@ export class OAuthController extends Controller {
     });
 
     const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
-    
+
     // Express의 redirect를 사용하여 앱으로 이동
-    return res.redirect(redirectUrl);
+    req.res.redirect(redirectUrl);
   }
 }
 
