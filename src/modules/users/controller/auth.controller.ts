@@ -29,13 +29,16 @@ export class OAuthController extends Controller {
    * @summary 구글 로그인 콜백
    */
   @Get("callback/google")
-  public async googleCallback(@Request() req: any, @Res() res: Response): Promise<void> {
+  public async googleCallback(
+    @Request() req: any, 
+    @Res() res: Response
+  ): Promise<void> {
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
         if (err) return reject(new AppError(500, err.message));
         if (!user) return reject(new AppError(401, info?.message || "인증 실패"));
         resolve(user);
-      })(req, req.res);
+      })(req, res);
     });
 
     const accessToken = generateAccessToken(user);
@@ -47,7 +50,9 @@ export class OAuthController extends Controller {
     });
 
     const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
-    req.res.redirect(redirectUrl);
+    
+    // Express의 redirect를 사용하여 앱으로 이동
+    return res.redirect(redirectUrl);
   }
 }
 
