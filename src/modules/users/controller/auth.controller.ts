@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Route, Tags, Security, Request, Res } from 'tsoa';
+import { Controller, Get, Post, Route, Tags, Security, Request, Res, Middlewares } from 'tsoa';
 import { Response } from 'express';
 import passport from '../../../auth.config';
 import { AuthNullResponseDto } from '../dto/auth.dto';
@@ -18,6 +18,7 @@ export class OAuthController extends Controller {
    * @summary 구글 로그인 요청
    */
   @Get("login/google")
+  @Middlewares(passport.authenticate("google", { session: false, scope: ["email", "profile"] }))
   public async googleLogin(): Promise<void> {
     // 실제 인증 처리는 passport GoogleStrategy가 수행함
   }
@@ -34,10 +35,9 @@ export class OAuthController extends Controller {
         if (err) return reject(new AppError(500, err.message));
         if (!user) return reject(new AppError(401, info?.message || "인증 실패"));
         resolve(user);
-      })(req, res);
+      })(req, req.res);
     });
 
-    // 3. JWT 발급 및 DB 업데이트
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
@@ -46,21 +46,8 @@ export class OAuthController extends Controller {
       data: { refreshToken: refreshToken }
     });
 
-    // 4. 플랫폼별 응답 처리 (웹 vs 모바일)
-    const platform = req.query.platform; // 호출 시 ?platform=mobile 추가
-    
-    if (platform === 'mobile') {
-      const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
-      return res.redirect(redirectUrl);
-    }
-
-    // 웹용 JSON 응답
-    res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: "로그인 성공",
-      data: { accessToken, refreshToken }
-    });
+    const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    req.res.redirect(redirectUrl);
   }
 }
 
