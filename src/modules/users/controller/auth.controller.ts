@@ -28,7 +28,7 @@ export class OAuthController extends Controller {
    * - 인증 성공 시 토큰 발급 및 DB 리프레쉬 토큰 저장
    * * @summary 구글 로그인 콜백
    */
-  @Get("oauth2/callback/google")
+  @Get("callback/google")
   public async googleCallback(@Request() req: any): Promise<void> {
     const user = await new Promise<any>((resolve, reject) => {
       passport.authenticate("google", { session: false }, (err, user, info) => {
