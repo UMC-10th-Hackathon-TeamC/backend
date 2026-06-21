@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Path, Post, Queries, Route } from "tsoa";
+import { Body, Controller, Delete, Path, Post, Queries, Route, Tags } from "tsoa";
 import { LikeAddRequest, LikeResponse } from "../dto/like.dto.js";
 import { likeAdd, likeCancel } from "../service/like.service.js";
 import { AppError } from "../../../common/errors/app.error.js";
@@ -11,7 +11,14 @@ interface LikeCancelQuery {
 }
 
 @Route("")
+@Tags("Like")
 export class LikeController extends Controller {
+/**
+ * 특정 게시글에 좋아요를 추가합니다.
+ *
+ * @summary 게시글 좋아요
+ * @param postId 게시글 ID
+ */
     @Post("posts/{postId}/likes")
     public async handleAddLike(
         @Path() postId: number,
@@ -26,6 +33,12 @@ export class LikeController extends Controller {
         }
     }
 
+/**
+ * 특정 게시글의 좋아요를 취소합니다.
+ *
+ * @summary 게시글 좋아요 취소
+ * @param postId 게시글 ID
+ */
     @Delete("posts/{postId}/likes")
     public async handleDeleteLike(
         @Path() postId: number,
