@@ -21,7 +21,7 @@ export const findPostsByDistrict = async (districtId: number, cursor?: number, l
         include: {
             user: { select: { nickname: true } },
             comments: { select: { id: true } },
-            likes: { select: { id: true } },
+            likes: { select: { userId: true } },
         },
         orderBy: { createdAt: "desc" },
         take: limit,
@@ -37,7 +37,7 @@ export const findPostById = async (postId: number) => {
             user: { select: { nickname: true } },
             district: { select: { name: true } },
             comments: { select: { id: true } },
-            likes: { select: { id: true } },
+            likes: { select: { userId: true } },
         },
     });
 };

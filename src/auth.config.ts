@@ -5,6 +5,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import jwt from "jsonwebtoken";
 import { prisma } from "./db.config.js";
 import * as express from "express";
+import { AppError } from "./common/errors/app.error.js";
 
 dotenv.config();
 
@@ -37,6 +38,24 @@ export const getUserIdFromRequest = (req: any): number => {
     throw new Error("인증되지 않은 사용자입니다.");
   }
   return user.id;
+};
+
+/**
+ * 비로그인도 허용하는 라우트에서, 토큰이 있으면 검증해 userId를 꺼내고
+ * 토큰이 없거나 유효하지 않으면 undefined를 반환한다 (인증 실패로 막지 않음).
+ */
+export const getOptionalUserIdFromRequest = (req: any): number | undefined => {
+  const authHeader = req.headers?.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return undefined;
+  }
+
+  try {
+    const payload = jwt.verify(authHeader.slice(7), process.env.JWT_SECRET!) as { id: number };
+    return payload.id;
+  } catch {
+    return undefined;
+  }
 };
 
 // ==========================================
@@ -130,21 +149,21 @@ export function expressAuthentication(
   if (securityName === "jwt") {
     return new Promise((resolve, reject) => {
       passport.authenticate("jwt", { session: false }, (err: any, user: any, info: any) => {
-        if (err) return reject(err);
-        
+        if (err) return reject(new AppError(401, "토큰이 유효하지 않습니다."));
+
         // 1. 여기서 인증 실패 시 상세 로그 확인
         if (info) console.log("Passport Auth Info:", info);
-        if (!user) return reject(new Error("토큰이 유효하지 않습니다."));
+        if (!user) return reject(new AppError(401, "토큰이 유효하지 않습니다."));
 
         // 2. 중요: TSOA 인증 성공 시 request.user에 유저 정보를 명시적으로 저장
-        request.user = user; 
-        
+        request.user = user;
+
         // 3. resolve를 통해 성공 처리
         resolve(user);
       })(request, request.res);
     });
   }
-  return Promise.reject(new Error("알 수 없는 보안 전략입니다."));
+  return Promise.reject(new AppError(401, "알 수 없는 보안 전략입니다."));
 }
 
 export default passport;

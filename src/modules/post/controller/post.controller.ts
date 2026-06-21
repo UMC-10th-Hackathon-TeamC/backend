@@ -11,7 +11,7 @@ import { postAdd, postList, postDetail, postUpdate, postDelete } from "../servic
 import { AppError } from "../../../common/errors/app.error.js";
 import { ApiResponse, successResponse } from "../../../common/responses/response.js";
 import { StatusCodes } from "http-status-codes";
-import { getUserIdFromRequest } from '../../../auth.config';
+import { getUserIdFromRequest, getOptionalUserIdFromRequest } from '../../../auth.config';
 
 interface PostListQuery {
     /** 페이지네이션 커서 */
@@ -54,11 +54,13 @@ export class PostController extends Controller {
  */
     @Get("districts/{districtId}/posts")
     public async handleGetPosts(
+        @Request() req: ExpressRequest,
         @Path() districtId: number,
         @Queries() query: PostListQuery,
     ): Promise<ApiResponse<PostListResponse>> {
         try {
-            const posts = await postList(districtId, query.cursor);
+            const userId = getOptionalUserIdFromRequest(req);
+            const posts = await postList(districtId, query.cursor, userId);
             return successResponse(StatusCodes.OK, "게시글 목록 조회 성공", posts);
         } catch (err) {
             if (err instanceof AppError) throw err;
@@ -74,10 +76,12 @@ export class PostController extends Controller {
  */
     @Get("posts/{postId}")
     public async handleGetPost(
+        @Request() req: ExpressRequest,
         @Path() postId: number,
     ): Promise<ApiResponse<PostDetailResponse>> {
         try {
-            const post = await postDetail(postId);
+            const userId = getOptionalUserIdFromRequest(req);
+            const post = await postDetail(postId, userId);
             return successResponse(StatusCodes.OK, "게시글 조회 성공", post);
         } catch (err) {
             if (err instanceof AppError) throw err;

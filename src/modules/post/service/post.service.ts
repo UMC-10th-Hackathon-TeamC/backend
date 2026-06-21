@@ -31,7 +31,8 @@ export const postAdd = async (
 
 export const postList = async (
     districtId: number,
-    cursor?: number
+    cursor?: number,
+    userId?: number
 ): Promise<PostListResponse> => {
     const posts = await findPostsByDistrict(districtId, cursor);
 
@@ -39,18 +40,21 @@ export const postList = async (
         posts: posts.map((p) => ({
             id: p.id,
             title: p.title,
+            content: p.content,
             category: p.category,
             author: p.user.nickname,
             viewCount: p.viewCount,
             likeCount: p.likes.length,
             commentCount: p.comments.length,
             createdAt: p.createdAt,
+            isMine: userId !== undefined && p.userId === userId,
+            isLiked: userId !== undefined && p.likes.some((like) => like.userId === userId),
         })),
         nextCursor: posts.length > 0 ? posts[posts.length - 1].id : null,
     };
 };
 
-export const postDetail = async (postId: number): Promise<PostDetailResponse> => {
+export const postDetail = async (postId: number, userId?: number): Promise<PostDetailResponse> => {
     const post = await findPostById(postId);
     if (!post) {
         throw new PostNotFoundError();
@@ -70,6 +74,7 @@ export const postDetail = async (postId: number): Promise<PostDetailResponse> =>
         commentCount: post.comments.length,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
+        isLiked: userId !== undefined && post.likes.some((like) => like.userId === userId),
     };
 };
 
