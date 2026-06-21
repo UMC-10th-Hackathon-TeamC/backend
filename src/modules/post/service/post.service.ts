@@ -48,12 +48,13 @@ export const postList = async (
             commentCount: p.comments.length,
             createdAt: p.createdAt,
             isMine: userId !== undefined && p.userId === userId,
+            isLiked: userId !== undefined && p.likes.some((like) => like.userId === userId),
         })),
         nextCursor: posts.length > 0 ? posts[posts.length - 1].id : null,
     };
 };
 
-export const postDetail = async (postId: number): Promise<PostDetailResponse> => {
+export const postDetail = async (postId: number, userId?: number): Promise<PostDetailResponse> => {
     const post = await findPostById(postId);
     if (!post) {
         throw new PostNotFoundError();
@@ -73,6 +74,7 @@ export const postDetail = async (postId: number): Promise<PostDetailResponse> =>
         commentCount: post.comments.length,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
+        isLiked: userId !== undefined && post.likes.some((like) => like.userId === userId),
     };
 };
 
