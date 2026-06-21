@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Route, Tags, Security, Request, Res, Middlewares } from 'tsoa';
+import { Controller, Get, Post, Route, Tags, Security, Request, Body, Middlewares } from 'tsoa';
 import { Response } from 'express';
 import passport from '../../../auth.config';
 import { AuthNullResponseDto } from '../dto/auth.dto';
@@ -47,6 +47,8 @@ export class OAuthController extends Controller {
     });
 
     const redirectUrl = `mogi://oauth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    
+    // Express의 redirect를 사용하여 앱으로 이동
     req.res.redirect(redirectUrl);
   }
 }
@@ -57,6 +59,20 @@ export class OAuthController extends Controller {
 @Route("auth")
 @Tags("Auth")
 export class AuthController extends Controller {
+
+  /**
+   * [개발용] 로컬 테스트 토큰 생성 API
+   * @summary 로컬 테스트용 토큰 발급
+   */
+  @Post("local/token")
+  public async getLocalToken(@Body() body: { userId: number }): Promise<{ token: string }> {
+    // 실제 운영 환경에서는 사용되지 않도록 방어 코드 추가
+    if (process.env.NODE_ENV === 'production') {
+      throw new AppError(403, "운영 환경에서는 사용할 수 없습니다.");
+    }
+    const token = generateAccessToken({ id: body.userId } as any);
+    return { token };
+  }
 
   /**
    * 로그아웃 처리

@@ -4,7 +4,14 @@
   "controllerPathGlobs": ["src/modules/**/controller/*.controller.ts"],
   "spec": {
     "outputDirectory": "src/generated",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+      "jwt": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
   },
   "routes": {
     "routesDir": "src/generated",
