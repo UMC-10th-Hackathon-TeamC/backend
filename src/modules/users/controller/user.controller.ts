@@ -10,10 +10,11 @@ import { AppError, NotFoundError } from '../../../common/errors/app.error';
 export class UserController extends Controller {
   private userService = new UserService();
 
-  /**
-   * 내 프로필 정보 조회
-   * - JWT 토큰의 유저 ID를 추출하여 프로필 정보를 조회합니다.
-   */
+/**
+ * JWT 토큰의 사용자 ID를 기준으로 내 프로필 정보를 조회합니다.
+ *
+ * @summary 내 프로필 조회
+ */
   @Security("jwt")
   @Get("me")
   public async getMyProfile(@Request() req: any): Promise<ApiResponse<UserProfileData>> {
@@ -34,10 +35,11 @@ export class UserController extends Controller {
     };
   }
 
-  /**
-   * 닉네임 수정
-   * - 전달받은 닉네임으로 유저 데이터를 업데이트합니다.
-   */
+/**
+ * 로그인한 사용자의 닉네임을 수정합니다.
+ *
+ * @summary 닉네임 수정
+ */
   @Security("jwt")
   @Patch("me")
   public async updateMyNickname(
@@ -63,10 +65,13 @@ export class UserController extends Controller {
     };
   }
 
-  /**
-   * GPS 기반 현재 위치 자치구 조회
-   * - 위도/경도 정보를 바탕으로 해당 위치의 자치구 정보를 조회합니다.
-   */
+/**
+ * 위도와 경도를 기준으로 현재 위치의 자치구 정보를 조회합니다.
+ *
+ * @summary 현재 위치 자치구 조회
+ * @param latitude 위도
+ * @param longitude 경도
+ */
   @Security("jwt")
   @Get("me/district")
   public async getMyDistrict(

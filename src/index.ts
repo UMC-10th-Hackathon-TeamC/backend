@@ -1,3 +1,5 @@
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./generated/swagger.json";
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
@@ -30,6 +32,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // 6. TSOA가 생성한 컨트롤러 라우트 등록
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 RegisterRoutes(app);
 
 // 7. 에러 핸들링 미들웨어 (가장 마지막에 위치)
