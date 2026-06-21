@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Middlewares, Post, Route, Security, Tags, Request } from 'tsoa';
 import passport from '../../../auth.config';
 import { AuthNullResponseDto } from '../dto/auth.dto';
-import { generateAccessToken, getUserIdFromRequest } from '../../../auth.config';
+import { generateAccessToken, generateRefreshToken, getUserIdFromRequest } from '../../../auth.config';
 import { prisma } from '../../../db.config';
 import { NotFoundError, AppError } from '../../../common/errors/app.error';
 
@@ -39,7 +39,7 @@ export class OAuthController extends Controller {
     });
 
     // 2. 토큰 및 리프레시 토큰 로직
-    const { generateAccessToken, generateRefreshToken } = require('../../../auth.config');
+    
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
